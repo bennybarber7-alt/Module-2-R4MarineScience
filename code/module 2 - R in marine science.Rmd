@@ -141,3 +141,151 @@ stratified_morphology <- arrange(penguins, species, desc(bill_length_mm))
 
 ```
 
+##  Introducing the Pipe (|>)
+The syntax for the native R pipe is |>. (Note there is also a pipe operator built into the tidyverse package magrittr, which is very common (%>% )
+
+
+Example: Instead of:
+penguins_subset <- mutate(penguins, bill_ratio = bill_length_mm / bill_depth_mm)
+penguins_final <- filter(penguins_subset, species == "Adelie")
+
+You can simply write:
+penguins_final <- penguins |>
+  mutate(bill_ratio = bill_length_mm / bill_depth_mm) |>
+  filter(species == "Adelie")
+
+
+
+## Computing new attributes with mutate()
+
+```{r}
+# Calculate a new morphological ratio in our environment
+penguin_ratios <- penguins  |> 
+  mutate(body_mass_kg = body_mass_g / 1000,   # Convert grams to kilograms
+         bill_ratio = bill_length_mm / bill_depth_mm  # Bill ratio
+  )
+
+# View your newly engineered variables appended to the far-right columns
+glimpse(penguin_ratios)
+
+```
+
+## Data aggregation and ecological summarisation
+
+```{r}
+# Grouping our active memory penguins by species
+grouped_penguins <- group_by(penguins, species)
+
+# Notice that the table looks identical, but metadata notes 'Groups: species [3]'
+print(grouped_penguins)
+
+# Collapsing the buckets into explicit summary metrics
+species_mass_summary <- summarise(grouped_penguins,
+  mean_mass_g = mean(body_mass_g)
+)
+
+print(species_mass_summary)
+
+```
+This is an essential behavioral design feature of R known as the Missing Value Trap. If a column contains even a single missing observation flag (NA), any mathematical aggregation function (such as mean(), sd(), or sum()) will automatically return NA to protect you from miscalculating metrics on incomplete data. To override this safely, you must explicitly declare that missing cells should be dropped during calculation. Here we’ll now use the magrittr pipe to wrangle our data, avoiding the missing value trap.
+
+
+```{r}
+# Overcoming the missing value trap using na.rm = TRUE
+biological_signal <- penguins %>%
+  group_by(species, sex) %>%
+  summarise(
+    sample_size = n(),                                     # Count total individuals per category
+    mean_mass_g = mean(body_mass_g, na.rm = TRUE),         # Calculate mean ignoring missing cells
+    sd_mass_g   = sd(body_mass_g, na.rm = TRUE)            # Standard deviation calculation
+  )
+
+print(biological_signal)
+
+```
+
+##  Integrating data grammar with visual diagnostics in qmd
+Wrangling and Plotting in Parallel
+Challenge: Visualising Body Size and Shape 
+Using your loaded data, create a code chunk in your .qmd that performs the following two tasks simultaneously:
+Summary Table: Pipe your data to group_by() and summarise() to calculate the mean body mass for each species and island.
+Visualisation: Pipe the same dataset into ggplot() to create a boxplot of body_mass_g by species, with the island variable mapped to fill or facet_wrap().
+
+```{r}
+penguins |>
+  group_by(species, island) |>
+  summarise(mean_mass = mean(body_mass_g, na.rm = TRUE), .groups = "drop") |>
+  ggplot(aes(x = species, y = mean_mass, fill = island)) +
+  geom_col()+
+  theme_minimal()
+```
+
+
+Piping Directly to Visualisation
+Example: Visualising Mean Trends with Uncertainty Instead of creating a summary table object first, you can pipe your grouped data straight into a plot and use geom_errorbar() to represent the spread of your data:
+
+```{r}
+# Pipe directly from aggregation to plotting with error bars
+mass_compare_plot <- penguins |>
+  group_by(species, island) |>
+  summarise(
+    mean_mass = mean(body_mass_g, na.rm = TRUE),
+    sd_mass = sd(body_mass_g, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = species, y = mean_mass, colour = island)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_mass - sd_mass, 
+                    ymax = mean_mass + sd_mass), 
+                width = 0.2) +
+  labs(title = "Mean Body Mass by Species and Island",
+       subtitle = "Error bars represent standard deviation",
+       y = "Mean Body Mass (g)",
+       x = "Species") +
+  theme_minimal()
+
+mass_compare_plot
+
+```
+
+
+Challenge: 
+In your .qmd template, try creating a new plot. Experiment with swapping sd_mass (standard deviation) for standard error—you will need to divide your sd by the square root of n (sd / sqrt(n)). See how that changes your visual interpretation of the data uncertainty. Present the summary table alongside the associated figure and write down your thoughts on the underlying ecological story that the data are telling.
+
+```{r}
+# Calculate standard error and plot with error bars
+# Pipe directly from aggregation to plotting with error bars
+SE_mass_compare_plot <- penguins |>
+  group_by(species, island) |>
+  summarise(
+    mean_mass = mean(body_mass_g, na.rm = TRUE),
+    sd_mass = sd(body_mass_g, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = species, y = mean_mass, colour = island)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_mass - (sd_mass / sqrt(n)), 
+                    ymax = mean_mass + (sd_mass / sqrt(n))), 
+                width = 0.2) +
+  labs(title = "Mean Body Mass by Species and Island",
+       subtitle = "Error bars represent standard error",
+       y = "Mean Body Mass (g)",
+       x = "Species") +
+  theme_minimal()
+
+print(SE_mass_compare_plot)
+```
+```
+
+## Ecological Story
+
+The two plots present different aspects of the uncertainty surrounding penguin body mass. The first plot, using **standard deviation (SD)**, illustrates the *spread of individual body masses* within each species. It shows the inherent variability among individual penguins of the same species. For example, Adélie penguins show a notable range of body masses, indicating that individual penguins can vary quite a bit from the species mean. This measure is crucial for understanding the biological diversity and range of traits within a population.
+
+In contrast, the second plot, using **standard error (SE)**, reflects the *precision of our estimate of the mean body mass* for each species. Because the standard error accounts for the sample size (`n`), the error bars are considerably narrower than those representing standard deviation. This smaller uncertainty suggests that we are quite confident about the calculated average body mass for each species, given the number of penguins sampled. The overlap in SE bars between Chinstrap and Gentoo is less pronounced than with SD, but still present, especially between Adélie and Chinstrap. This suggests that while there is individual variation (SD), our estimate of the average mass (SE) is more precise, potentially indicating statistically significant differences in mean mass between some species, particularly between Gentoo and the other two.
+
+The key takeaway for the ecological story is that while penguins exhibit natural individual variability (SD), the large sample sizes collected for each species allow for a precise estimation of their average body mass (SE). This precision allows us to discern clearer differences in average size between species, such as the significantly larger body mass of Gentoo penguins compared to Adélie and Chinstrap, while acknowledging the broader range of sizes individuals can reach.
+
+
+
