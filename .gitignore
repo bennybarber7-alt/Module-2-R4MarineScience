@@ -24,3 +24,5 @@ output/
 # Keywords to ignore
 *archive
 .positai
+.httr-oauth
+.quarto
