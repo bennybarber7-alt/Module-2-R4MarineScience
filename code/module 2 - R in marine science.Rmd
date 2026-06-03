@@ -106,7 +106,7 @@ spatial_block <- select(penguins, species:island)
 clean_scientific_fields <- select(penguins, -year)
 
 ```
-Sifting rows with filter()
+## Sifting rows with filter()
 
 ```{r}
 # Isolate observations belonging to a single categorical target group
@@ -122,6 +122,22 @@ biscoe_gentoo <- filter(penguins, species == "Gentoo" & island == "Biscoe")
 
 # Sift records matching multiple targeting flags within an explicit set
 sub_islands <- filter(penguins, island %in% c("Dream", "Torgersen"))
+
+```
+
+## Ordering sequences with arrange()
+
+The arrange() verb alters the sorting configuration of rows within your data frame without changing individual cell values. This is essential for inspecting size hierarchies or chronologically ordering long-term environmental observation lines:
+
+```{r}
+# Sort penguins by ascending body mass (Default setting: Smallest mass first)
+lightest_first <- arrange(penguins, body_mass_g)
+
+# Sort penguins in descending sequence using the desc() layout wrapper
+heaviest_first <- arrange(penguins, desc(body_mass_g))
+
+# Execute nested sorting criteria: Group by species, then sort by descending bill length
+stratified_morphology <- arrange(penguins, species, desc(bill_length_mm))
 
 ```
 
