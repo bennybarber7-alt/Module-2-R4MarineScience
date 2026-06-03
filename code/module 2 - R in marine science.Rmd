@@ -277,7 +277,7 @@ SE_mass_compare_plot <- penguins |>
 
 print(SE_mass_compare_plot)
 ```
-```
+
 
 ## Ecological Story
 
@@ -287,5 +287,23 @@ In contrast, the second plot, using **standard error (SE)**, reflects the *preci
 
 The key takeaway for the ecological story is that while penguins exhibit natural individual variability (SD), the large sample sizes collected for each species allow for a precise estimation of their average body mass (SE). This precision allows us to discern clearer differences in average size between species, such as the significantly larger body mass of Gentoo penguins compared to Adélie and Chinstrap, while acknowledging the broader range of sizes individuals can reach.
 
+#saving data
+```{r}
 
+library(readr)
+# 1. Exporting our collapsed summary table as a universal flat text file
+write_csv(biological_signal, "../Outputs/tables/penguin_species_mass_summary.csv")
+getwd()
+
+# 2. Saving our cleaned morphological cohort table as a native R binary file
+saveRDS(morphology_metrics, "../outputs/tables/morphology_metrics.rds")
+
+```
+```{r}
+ggsave("../Outputs/figures/SE_mass_compare_plot.png", 
+       plot = mass_compare_plot, 
+       width = 120, height = 120, 
+       units = "mm", dpi = 300)
+
+```
 
