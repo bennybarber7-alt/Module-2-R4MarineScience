@@ -3,3 +3,43 @@ title: "Keystone_prac"
 format: html
 ---
 
+You have inherited a project from a former PhD student who was studying the relationship between water quality and predatory fish assemblages along the Ross River Estuary gradient. Unfortunately, their data management was entirely manual, and the files are a disaster.
+Your mission is to write a single, reproducible R script (or .qmd) that ingests this mess, cleans it, joins it into a single master dataset, and produces a publication-ready visualisation of the estuary's ecology.
+
+# Introduction
+Here I am going to wrangling in messy data, and produce a publication-ready visualisation of the estuary's ecology.the data is split across 4 different files
+
+# load libraries
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(readr)
+library(readxl)
+```
+# load data sets:
+catch data is split acorss 4 sheetsin one excel file: loading individually 
+```{r}
+#estrury catch dat with 4 sheets, each sheet is different site 
+catch1<- read_excel("../data/estuary_catch_log.xlsx", sheet =1)
+catch2<- read_excel("../data/estuary_catch_log.xlsx", sheet =2)
+catch3<- read_excel("../data/estuary_catch_log.xlsx", sheet =3)
+catch4<- read_excel("../data/estuary_catch_log.xlsx", sheet =4)
+
+catch_data <- bind_rows(catch1, catch2, catch3, catch4)
+```
+
+```{r}
+estuary_metadata <- read_csv("../data/estuary_metadata.csv")
+
+estuary_sonde_data <- read_csv("../data/estuary_sonde_data.csv")
+
+species_dictionary <- read_csv("../data/species_dictionary.csv")
+```
+#exploring the data sets
+
+```{r}
+head(catch_data)
+
+```
+
