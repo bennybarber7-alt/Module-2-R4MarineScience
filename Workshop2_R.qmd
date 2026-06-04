@@ -3,3 +3,169 @@ title: "Workshop2_R"
 format: html
 ---
 
+#----workshop 2----#
+
+## Introduction
+This qmd file covers the material from the second workshop for the R in marine science module. 
+here we are covering:
+- Tidying data
+- pivoting wider and longer
+- spearating and uniting variables
+- dealing with strings and dates
+- joining separate date frames/tibbles
+- Handling missing data
+
+
+## Tidying data
+How we make our dataset tidy is by following three interrelated rules. 
+Each variable must have its own column.
+Each observation must have its own row.
+Each value must have its own cell.
+
+```{r}
+#loading library
+library(tidyverse)
+
+```
+Understanding whether your data frame structure is optimal (or tidy) is a fundamental skill for a data scientist
+
+Step 1 = tidy and understand what the data is and means
+step 2 =  resolve one of the two common problems with untidy data. These are:
+    One variable is spread across multiple columns
+    One observation is scattered across multiple rows
+    
+## Lengthening datasets
+-using pivot_longer() to lengthen dataset
+example of wide format:
+billboard
+#> # A tibble: 317 × 79
+#>   artist       track               date.entered   wk1   wk2   wk3   wk4   wk5
+#>   <chr>        <chr>               <date>       <dbl> <dbl> <dbl> <dbl> <dbl>
+#> 1 2 Pac        Baby Don't Cry (Ke... 2000-02-26      87    82    72    77    87
+#> 2 2Ge+her      The Hardest Part O... 2000-09-02      91    87    92    NA    NA
+#> 3 3 Doors Down Kryptonite          2000-04-08      81    70    68    67    66
+#> 4 3 Doors Down Loser               2000-10-21      76    76    72    69    67
+#> 5 504 Boyz     Wobble Wobble       2000-04-15      57    34    25    17    17
+#> 6 98^0         Give Me Just One N... 2000-08-19      51    39    34    26    26
+#> # ℹ 311 more rows
+#> # ℹ 71 more variables: wk6 <dbl>, wk7 <dbl>, wk8 <dbl>, wk9 <dbl>, ...
+
+
+
+```{r}
+billboard |> 
+  pivot_longer(
+    cols = starts_with("wk"), 
+    names_to = "week", 
+    values_to = "rank"
+  )
+```
+
+Note that in the code "week" and "rank" are quoted because they are new variables that we are creating, they don’t exist yet in the data when we run the pivot_longer() call.
+
+-cols which specifies the columns you want to pivot (the ones that aren’t variables). Note: you could either use !c(artist, track, date.entered) OR starts_with('wk') because the cols argument uses the same syntax as select().
+
+-names_to which names the variable stored in the column names. We chose to name that variable week.
+
+-values_to which names the variable stored in the cell values that we named rank
+
+```{r}
+billboard |> 
+  pivot_longer(
+    cols = starts_with("wk"), 
+    names_to = "week", 
+    values_to = "rank",
+    values_drop_na = TRUE
+  )
+#> # A tibble: 5,307 × 5
+#>   artist track                   date.entered week   rank
+#>   <chr>  <chr>                   <date>       <chr> <dbl>
+#> 1 2 Pac  Baby Don't Cry (Keep... 2000-02-26   wk1      87
+#> 2 2 Pac  Baby Don't Cry (Keep... 2000-02-26   wk2      82
+#> 3 2 Pac  Baby Don't Cry (Keep... 2000-02-26   wk3      72
+#> 4 2 Pac  Baby Don't Cry (Keep... 2000-02-26   wk4      77
+#> 5 2 Pac  Baby Don't Cry (Keep... 2000-02-26   wk5      87
+#> 6 2 Pac  Baby Don't Cry (Keep... 2000-02-26   wk6      94
+#> # ℹ 5,301 more rows
+```
+adding the values_drop_na = TRUE argument to the pivot_longer() call drops all rows where the rank variable is NA. This is useful because we only want to keep rows where there is a rank value, and not rows where there is no rank value (NA).
+
+mutate() and parse_number() are used to convert the week variable from a character variable (e.g. "wk1") to a numeric variable (e.g. 1). This is done by first using parse_number() to extract the numeric part of the week variable, and then using mutate() to create a new variable called week_num that contains the numeric values.
+
+```{r}
+billboard_longer <- billboard |> 
+  pivot_longer(
+    cols = starts_with("wk"), 
+    names_to = "week", 
+    values_to = "rank",
+    values_drop_na = TRUE
+  ) |> 
+  mutate(
+    week = parse_number(week)
+  )
+
+billboard_longer
+
+```
+
+#Example exercise:
+```{r}
+df <- tribble(
+  ~id,  ~bp1, ~bp2,
+   "A",  100,  120,
+   "B",  140,  115,
+   "C",  120,  125
+)
+```
+
+we want our new (tidy) dataset to have three variables: 
+id (which already exists)
+measurement (the column names) 
+value (the cell values)
+
+```{r}
+
+df |> 
+  pivot_longer(
+    cols = bp1:bp2,
+    names_to = "measurement",
+    values_to = "value"
+  )
+```
+
+## Widening datasets
+-using pivot_wider() to widen dataset -  allows us to handle an observation if it is scattered across multiple rows.
+
+```{r}
+cms_patient_experience
+```
+
+We can see the complete set of values for measure_cd and measure_title by using distinct():
+
+```{r}
+cms_patient_experience |> 
+  distinct(measure_cd, measure_title)
+```
+
+pivot_wider() has the opposite interface to pivot_longer(): instead of choosing new column names, we need to provide the existing columns that define the values (values_from) and the column name (names_from):
+
+```{r}
+cms_patient_experience |> 
+  pivot_wider(
+    names_from = measure_cd,
+    values_from = prf_rate
+  )
+```
+
+need to tell pivot_wider() which column or columns have values that uniquely identify each row; in this case those are the variables starting with "org":
+
+```{r}
+cms_patient_experience |> 
+  pivot_wider(
+    id_cols = starts_with("org"),
+    names_from = measure_cd,
+    values_from = prf_rate
+  )
+
+```
+
