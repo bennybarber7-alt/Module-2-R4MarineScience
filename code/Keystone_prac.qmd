@@ -36,6 +36,7 @@ estuary_sonde_data <- read_csv("../data/estuary_sonde_data.csv")
 
 species_dictionary <- read_csv("../data/species_dictionary.csv")
 ```
+
 #exploring the data sets
 
 ```{r}
