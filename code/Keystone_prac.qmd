@@ -1,14 +1,17 @@
 ---
-title: "Keystone_prac"
+title: "Keystone Speceis Prac"
 Author: "Ben Barber"
 Date: "r format(Sys.Date(), '%B %d, %Y')"
 format: html
 ---
 
+# MB5370: Techniques in Marine Science 1: R in Marine Science Keystone Species Exercise
+
+# Introduction
+
 You have inherited a project from a former PhD student who was studying the relationship between water quality and predatory fish assemblages along the Ross River Estuary gradient. Unfortunately, their data management was entirely manual, and the files are a disaster.
 Your mission is to write a single, reproducible R script (or .qmd) that ingests this mess, cleans it, joins it into a single master dataset, and produces a publication-ready visualisation of the estuary's ecology.
 
-# Introduction
 Here I am going to wrangling in messy data, and produce a publication-ready visualisation of the estuary's ecology.the data is split across 4 different files
 
 #Phase 1: Ingestion and Decontamination
@@ -46,7 +49,6 @@ species_dictionary <- read_csv("../data/species_dictionary.csv")
 ```
 
 #exploring the data sets
-
 
 
 ## Catch data:
@@ -223,7 +225,7 @@ master_set <- catch_data |>
 
 Finialising the variables.
 ```{r}
-master_set <- catch_data_final |> 
+catch_data_final <- master_set |> 
   complete(
     nesting(site, date, 
            # lat, lon, 

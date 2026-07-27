@@ -1,50 +1,321 @@
 ---
-title: "R for Marine Science Workshop 1"
-author: "Your name here"
+title: "Module 2 - R in marine science Workshop 1"
+author: "Ben Barbe"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: 
- html_document:
-    code_folding: show
-    collapse: no
-    df_print: paged
-    fig_caption: yes
-    fig_height: 6
-    fig_width: 10
-    highlight: textmate
-    theme: spacelab
-    toc: yes
-    toc_float: yes
-editor_options: 
-  chunk_output_type: inline
+format: html
 ---
 
+# MB5370: Techniques in Marine Science 1: R in Marine Science Workshop 1
 
-```{r setup, include=FALSE}
-# Set options, housekeeping
-knitr::opts_chunk$set(
-	echo = FALSE,
-	include = TRUE,
-	message = FALSE,
-	warning = FALSE)
-```
+# Introduction
 
-## Introduction
+This workshop built on my basic R skills by applying them to the Palmer Penguins dataset. I practised cleaning, summarising and plotting ecological data while learning how to manage missing values and check that the results made biological sense.
 
 
-### Clear out environment
-```{r housekeeping, message=FALSE, warning=FALSE, include=FALSE}
-rm(list=ls())
-```
+# Housekeeping
 
-### Load packages
-```{r packages, message=FALSE, warning=FALSE, include=FALSE}
+## Inventory every active object currently residing in session RAM
+objects()
+
+## Purge global environment
+rm(list = ls())
+
+## Confirm that global session memory now completely vacant
+objects()
+
+
+## Ingesting data into R ##
+
+practice import of datasets:
+```{r}
+# Load the primary data science framework and Excel import library
 library(tidyverse)
+library(readxl)
+
+# Practice Import A: Loading a standard comma-separated plain text file
+benthic_cover <- read_csv(here::here("data/reef_cover_log.csv"))
+
+# Practice Import B: Parsing a tab-separated telemetry instrument array string
+acoustic_stream <- read_tsv(here::here("data/acoustic_telemetry_stream.txt"))
+
+# Practice Import C: Targeting a specific sheet in a multi-tab Excel spreadsheet
+fisheries_annual <- read_excel(here::here("data/fish_catch_data.xlsx"), sheet = "Commercial_2026")
+
+# Read in mangrove_data
+mangrove_data <- read_csv(file = here::here("data/mangrove_survey_raw.csv"))
+
+# Use args within read_csv to skip headers and declare missing flags
+mangrove_data <- read_csv(
+  here::here("data/mangrove_survey_raw.csv"),
+  skip = 5,   # Skip the first 5 lines of field notes
+  na = c(".", "NA", "9999", "ND", "blank"))  # Convert known text alts to true NA
+
 ```
 
-### Source script
-```{r source-script1, message=FALSE, warning=FALSE, include=FALSE}
-source("Workshop1.R")
+
+## Data frame architectures: Tibbles versus legacy tables ##
+
+```{r}
+# Force a modern tibble to degrade into a legacy base R data frame structure
+benthic_cover_df <- as.data.frame(benthic_cover)
+
 ```
+
+compare this:
+```{r}
+# Print the old-style dataframe structure to view
+print(benthic_cover_df)
+# And compare with tibble alternative
+print(benthic_cover)
+ 
+```
+Observe your console feedback. The tibble structure tells its dimensions and highlights variable configurations right below the column headers. This constant visual validation is your primary defense against typing errors.
+
+
+## Wrangling out ecological signals using Palmer Penguins ##
+
+```{r}
+# Install the data package (execute this command once in your console pane and then delete!)
+# install.packages("palmerpenguins")
+
+# Load the package data into active memory
+library(palmerpenguins)
+library(tidyverse)
+data("penguins")
+
+# Examine the structure of the dataset - always do this when loading a new dataset!
+glimpse(penguins) # tidyverse version (from dplyr package)
+str(penguins) # base R version
+
+```
+```{r}
+# Generate an exploratory summary matrix
+summary(penguins)
+
+```
+the summary() function provides a quick overview of the dataset, including the minimum, maximum, mean, and quartiles for numerical variables, as well as counts for categorical variables. Values that come back NA indicate missing data, which is common in ecological datasets.
+
+
+## Foundational grammar: Slicing, filtering, sorting, and transforming ##
+Isolating attributes with select()
+
+```{r}
+# Vertically slice specific morphometric variables by explicit name
+morphology_metrics <- select(penguins, species, bill_length_mm, bill_depth_mm, body_mass_g)
+glimpse(morphology_metrics)
+
+# Retain a continuous block of attributes using the colon operator
+spatial_block <- select(penguins, species:island)
+
+# Discard logistics tracking attributes while preserving everything else using the minus sign
+clean_scientific_fields <- select(penguins, -year)
+
+```
+## Sifting rows with filter()
+
+```{r}
+# Isolate observations belonging to a single categorical target group
+adelie_cohort <- filter(penguins, species == "Adelie")
+
+# Sift out individuals using continuous numerical boundary thresholds
+# Preserves only large penguins whose mass exceeds 4500 grams
+heavy_penguins <- filter(penguins, body_mass_g > 4500)
+
+# Combine multiple conditional parameters across separate attributes
+# Preserves records matching Gentoo penguins sampled explicitly on Biscoe Island
+biscoe_gentoo <- filter(penguins, species == "Gentoo" & island == "Biscoe")
+
+# Sift records matching multiple targeting flags within an explicit set
+sub_islands <- filter(penguins, island %in% c("Dream", "Torgersen"))
+
+```
+
+## Ordering sequences with arrange()
+
+The arrange() verb alters the sorting configuration of rows within your data frame without changing individual cell values. This is essential for inspecting size hierarchies or chronologically ordering long-term environmental observation lines:
+
+```{r}
+# Sort penguins by ascending body mass (Default setting: Smallest mass first)
+lightest_first <- arrange(penguins, body_mass_g)
+
+# Sort penguins in descending sequence using the desc() layout wrapper
+heaviest_first <- arrange(penguins, desc(body_mass_g))
+
+# Execute nested sorting criteria: Group by species, then sort by descending bill length
+stratified_morphology <- arrange(penguins, species, desc(bill_length_mm))
+
+```
+
+##  Introducing the Pipe (|>)
+The syntax for the native R pipe is |>. (Note there is also a pipe operator built into the tidyverse package magrittr, which is very common (%>% )
+
+
+Example: Instead of:
+penguins_subset <- mutate(penguins, bill_ratio = bill_length_mm / bill_depth_mm)
+penguins_final <- filter(penguins_subset, species == "Adelie")
+
+write:
+penguins_final <- penguins |>
+  mutate(bill_ratio = bill_length_mm / bill_depth_mm) |>
+  filter(species == "Adelie")
+
+
+
+## Computing new attributes with mutate()
+
+```{r}
+# Calculate a new morphological ratio in our environment
+penguin_ratios <- penguins  |> 
+  mutate(body_mass_kg = body_mass_g / 1000,   # Convert grams to kilograms
+         bill_ratio = bill_length_mm / bill_depth_mm  # Bill ratio
+  )
+
+# View your newly engineered variables appended to the far-right columns
+glimpse(penguin_ratios)
+
+```
+
+## Data aggregation and ecological summarisation
+
+```{r}
+# Grouping our active memory penguins by species
+grouped_penguins <- group_by(penguins, species)
+
+# Notice that the table looks identical, but metadata notes 'Groups: species [3]'
+print(grouped_penguins)
+
+# Collapsing the buckets into explicit summary metrics
+species_mass_summary <- summarise(grouped_penguins,
+  mean_mass_g = mean(body_mass_g)
+)
+
+print(species_mass_summary)
+
+```
+This is an essential behavioral design feature of R known as the Missing Value Trap. If a column contains even a single missing observation flag (NA), any mathematical aggregation function (such as mean(), sd(), or sum()) will automatically return NA to protect you from miscalculating metrics on incomplete data. To override this safely, you must explicitly declare that missing cells should be dropped during calculation. Here we’ll now use the magrittr pipe to wrangle our data, avoiding the missing value trap.
+
+
+```{r}
+# Overcoming the missing value trap using na.rm = TRUE
+biological_signal <- penguins %>%
+  group_by(species, sex) %>%
+  summarise(
+    sample_size = n(),                                     # Count total individuals per category
+    mean_mass_g = mean(body_mass_g, na.rm = TRUE),         # Calculate mean ignoring missing cells
+    sd_mass_g   = sd(body_mass_g, na.rm = TRUE)            # Standard deviation calculation
+  )
+
+print(biological_signal)
+
+```
+
+##  Integrating data grammar with visual diagnostics in qmd
+Wrangling and Plotting in Parallel
+Challenge: Visualising Body Size and Shape 
+Using your loaded data, create a code chunk in your .qmd that performs the following two tasks simultaneously:
+Summary Table: Pipe your data to group_by() and summarise() to calculate the mean body mass for each species and island.
+Visualisation: Pipe the same dataset into ggplot() to create a boxplot of body_mass_g by species, with the island variable mapped to fill or facet_wrap().
+
+```{r}
+penguins |>
+  group_by(species, island) |>
+  summarise(mean_mass = mean(body_mass_g, na.rm = TRUE), .groups = "drop") |>
+  ggplot(aes(x = species, y = mean_mass, fill = island)) +
+  geom_col()+
+  theme_minimal()
+```
+
+
+Piping Directly to Visualisation
+Example: Visualising Mean Trends with Uncertainty Instead of creating a summary table object first, you can pipe your grouped data straight into a plot and use geom_errorbar() to represent the spread of your data:
+
+```{r}
+# Pipe directly from aggregation to plotting with error bars
+mass_compare_plot <- penguins |>
+  group_by(species, island) |>
+  summarise(
+    mean_mass = mean(body_mass_g, na.rm = TRUE),
+    sd_mass = sd(body_mass_g, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = species, y = mean_mass, colour = island)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_mass - sd_mass, 
+                    ymax = mean_mass + sd_mass), 
+                width = 0.2) +
+  labs(title = "Mean Body Mass by Species and Island",
+       subtitle = "Error bars represent standard deviation",
+       y = "Mean Body Mass (g)",
+       x = "Species") +
+  theme_minimal()
+
+mass_compare_plot
+
+```
+
+
+Challenge: 
+In your .qmd template, try creating a new plot. Experiment with swapping sd_mass (standard deviation) for standard error—you will need to divide your sd by the square root of n (sd / sqrt(n)). See how that changes your visual interpretation of the data uncertainty. Present the summary table alongside the associated figure and write down your thoughts on the underlying ecological story that the data are telling.
+
+```{r}
+# Calculate standard error and plot with error bars
+# Pipe directly from aggregation to plotting with error bars
+SE_mass_compare_plot <- penguins |>
+  group_by(species, island) |>
+  summarise(
+    mean_mass = mean(body_mass_g, na.rm = TRUE),
+    sd_mass = sd(body_mass_g, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = species, y = mean_mass, colour = island)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_mass - (sd_mass / sqrt(n)), 
+                    ymax = mean_mass + (sd_mass / sqrt(n))), 
+                width = 0.2) +
+  labs(title = "Mean Body Mass by Species and Island",
+       subtitle = "Error bars represent standard error",
+       y = "Mean Body Mass (g)",
+       x = "Species") +
+  theme_minimal()
+
+print(SE_mass_compare_plot)
+```
+
+
+## Ecological Story
+
+The two plots present different aspects of the uncertainty surrounding penguin body mass. The first plot, using **standard deviation (SD)**, illustrates the *spread of individual body masses* within each species. It shows the inherent variability among individual penguins of the same species. For example, Adélie penguins show a notable range of body masses, indicating that individual penguins can vary quite a bit from the species mean. This measure is crucial for understanding the biological diversity and range of traits within a population.
+
+In contrast, the second plot, using **standard error (SE)**, reflects the *precision of our estimate of the mean body mass* for each species. Because the standard error accounts for the sample size (`n`), the error bars are considerably narrower than those representing standard deviation. This smaller uncertainty suggests that we are quite confident about the calculated average body mass for each species, given the number of penguins sampled. The overlap in SE bars between Chinstrap and Gentoo is less pronounced than with SD, but still present, especially between Adélie and Chinstrap. This suggests that while there is individual variation (SD), our estimate of the average mass (SE) is more precise, potentially indicating statistically significant differences in mean mass between some species, particularly between Gentoo and the other two.
+
+The key takeaway for the ecological story is that while penguins exhibit natural individual variability (SD), the large sample sizes collected for each species allow for a precise estimation of their average body mass (SE). This precision allows us to discern clearer differences in average size between species, such as the significantly larger body mass of Gentoo penguins compared to Adélie and Chinstrap, while acknowledging the broader range of sizes individuals can reach.
+
+#saving data
+```{r}
+
+library(readr)
+# 1. Exporting our collapsed summary table as a universal flat text file
+write_csv(biological_signal, "../Outputs/tables/penguin_species_mass_summary.csv")
+getwd()
+
+# 2. Saving our cleaned morphological cohort table as a native R binary file
+saveRDS(morphology_metrics, "../outputs/tables/morphology_metrics.rds")
+
+```
+
+
+```{r}
+ggsave("../Outputs/figures/SE_mass_compare_plot.png", 
+       plot = mass_compare_plot, 
+       width = 120, height = 120, 
+       units = "mm", dpi = 300)
+#Saving the plot as a high-resolution PNG file in the Outputs/figures directory with specified dimensions and resolution.
+
+```
+
+
 
 
 

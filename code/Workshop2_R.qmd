@@ -1,19 +1,14 @@
 ---
-title: "Workshop2_R"
+title: "Module 2 - R in marine science Workshop 2"
+author: "Ben Barber"
+date: "2026-06-03"
 format: html
 ---
 
-#----workshop 2----#
+# MB5370: Techniques in Marine Science 1: R in Marine Science Workshop 2
 
 ## Introduction
-This qmd file covers the material from the second workshop for the R in marine science module. 
-here we are covering:
-- Tidying data
-- pivoting wider and longer
-- spearating and uniting variables
-- dealing with strings and dates
-- joining separate date frames/tibbles
-- Handling missing data
+ In this workshop, I focused on tidying and reshaping data, separating and combining variables, cleaning strings and dates, joining different data frames and handling missing values. These skills helped me better understand how messy datasets can be organised into a format that is easier to analyse.
 
 
 ## Tidying data
@@ -40,20 +35,6 @@ step 2 =  resolve one of the two common problems with untidy data. These are:
 ## Lengthening datasets
 -using pivot_longer() to lengthen dataset
 example of wide format:
-billboard
-#> # A tibble: 317 × 79
-#>   artist       track               date.entered   wk1   wk2   wk3   wk4   wk5
-#>   <chr>        <chr>               <date>       <dbl> <dbl> <dbl> <dbl> <dbl>
-#> 1 2 Pac        Baby Don't Cry (Ke... 2000-02-26      87    82    72    77    87
-#> 2 2Ge+her      The Hardest Part O... 2000-09-02      91    87    92    NA    NA
-#> 3 3 Doors Down Kryptonite          2000-04-08      81    70    68    67    66
-#> 4 3 Doors Down Loser               2000-10-21      76    76    72    69    67
-#> 5 504 Boyz     Wobble Wobble       2000-04-15      57    34    25    17    17
-#> 6 98^0         Give Me Just One N... 2000-08-19      51    39    34    26    26
-#> # ℹ 311 more rows
-#> # ℹ 71 more variables: wk6 <dbl>, wk7 <dbl>, wk8 <dbl>, wk9 <dbl>, ...
-
-
 
 ```{r}
 billboard |> 

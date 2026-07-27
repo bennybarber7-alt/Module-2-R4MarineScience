@@ -1,5 +1,5 @@
 ---
-title: "module 2 - R in marine science"
+title: "Module 2 - R in marine science Workshop 1"
 author: "Ben Barber"
 date: "2026-06-03"
 output: html_document
@@ -9,7 +9,15 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# MB5370: Techniques in Marine Science 1: R in Marine Science Workshop 1
+
+# Introduction
+
+This workshop built on my basic R skills by applying them to the Palmer Penguins dataset. I practised cleaning, summarising and plotting ecological data while learning how to manage missing values and check that the results made biological sense.
+
+
 # Housekeeping
+
 ## Inventory every active object currently residing in session RAM
 objects()
 ## Purge global environment
