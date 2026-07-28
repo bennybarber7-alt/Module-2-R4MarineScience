@@ -7,7 +7,7 @@ format: html
 
 # MB5370: Techniques in Marine Science 1: R in Marine Science Workshop 1
 
-# Introduction
+# Introduction: Data Wrangling and Visualisation
 
 This workshop built on my basic R skills by applying them to the Palmer Penguins dataset. I practised cleaning, summarising and plotting ecological data while learning how to manage missing values and check that the results made biological sense.
 

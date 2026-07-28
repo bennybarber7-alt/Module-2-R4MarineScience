@@ -7,7 +7,8 @@ format: html
 
 # MB5370: Techniques in Marine Science 1: R in Marine Science Workshop 2
 
-## Introduction
+## Introduction: Advanced Data Wrangling and Tidy Data
+
 This workshop improved my confidence in cleaning and reorganising complex datasets in R. I learned that tidy data, consistent formatting and careful handling of missing values are essential for combining datasets correctly and producing reliable results.
 
 ## Tidying data
