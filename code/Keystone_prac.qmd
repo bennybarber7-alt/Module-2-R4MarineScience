@@ -12,9 +12,9 @@ format: html
 You have inherited a project from a former PhD student who was studying the relationship between water quality and predatory fish assemblages along the Ross River Estuary gradient. Unfortunately, their data management was entirely manual, and the files are a disaster.
 Your mission is to write a single, reproducible R script (or .qmd) that ingests this mess, cleans it, joins it into a single master dataset, and produces a publication-ready visualisation of the estuary's ecology.
 
-Here I am going to wrangling in messy data, and produce a publication-ready visualisation of the estuary's ecology.the data is split across 4 different files
+In this practical, I worked with four messy datasets and applied data-wrangling techniques to clean, organise and combine them into a single reproducible dataset. I then used the cleaned data to produce a publication-ready visualisation of ecological patterns along the Ross River Estuary.
 
-#Phase 1: Ingestion and Decontamination
+# Phase 1: Ingestion and Decontamination
 
 # load libraries
 
@@ -48,7 +48,7 @@ sensory_raw <- read_csv("../data/estuary_sonde_data.csv")
 species_dictionary <- read_csv("../data/species_dictionary.csv")
 ```
 
-#exploring the data sets
+# exploring the data sets
 
 
 ## Catch data:
@@ -70,7 +70,7 @@ catch_data |>
 
  
 ```
-###We have 4 species within our dataset as well as 4 sites located at different points on the ross river. What I need to do:
+### We have 4 species within our dataset as well as 4 sites located at different points on the ross river. What I need to do:
 
  - fix the names of the sites into  reasonable order
  
@@ -78,14 +78,14 @@ catch_data |>
  
  - Fix species names, I will do this by joining the catch data with the species dictionary, which will give me the correct species names and also the common names for each species. I will do this by using a left join, which will keep all the rows in the catch data and add the common names from the species dictionary.
 
-##metadata - inspection
+## metadata - inspection
 ```{r}
 head(metadata)
 glimpse(metadata)
 ```
 Site names are also super messy so will need to fix and standardize this across the data sets
 
-##standardise site and speices names across data sets
+## standardise site and speices names across data sets
 ```{r}
 catch_data <- catch_data |>
   mutate(
@@ -115,7 +115,7 @@ glimpse(metadata)
 ```
 
 
-##species dictionary - Taxonomic Dictionary
+## species dictionary - Taxonomic Dictionary
 ```{r}
 head(species_dictionary)
 glimpse(species_dictionary)
@@ -221,7 +221,7 @@ master_set <- catch_data |>
 ```
 
 
-##Phase 3: The Zero-Catch Framework 
+## Phase 3: The Zero-Catch Framework 
 
 Finialising the variables.
 ```{r}
@@ -239,7 +239,7 @@ catch_data_final <- master_set |>
 ```
 
 
-##Phase 4: Statistical Extraction
+## Phase 4: Statistical Extraction
 #From your master dataset, generate a clean summary table showing the mean ± standard error of both the fish catch and the salinity for each scientific species across each estuary zone.
 
 ```{r}
@@ -270,7 +270,7 @@ Sal_sum|>
 ```
 
 
-#calculate the mean and standard error of the fish catch for each scientific speices across esturay zones
+# calculate the mean and standard error of the fish catch for each scientific speices across esturay zones
 
 ```{r}
 fish_stats <- catch_data_final |>
@@ -283,9 +283,9 @@ fish_stats <- catch_data_final |>
 ```
 
 
-#make point and error plot 
+# make point and error plot 
 
-```{r}
+```{r,warning=FALSE}
 fish_stats |> 
   ggplot(aes(x = zone, y = mean_catch, fill = zone)) +
   geom_point(position = "dodge", size = 2, pch = 23) +
@@ -310,4 +310,6 @@ fish_stats |>
     fill = "Spatial Zone"
   )
 ```
+# Practical Reflection
 
+Throughout this practical, I have demonstrated the ability to ingest, clean, and combine messy datasets into a single reproducible dataset. I have also shown how to produce publication-ready visualisations of ecological patterns along the Ross River Estuary. This practial allow me to further develop my skills in data wrangling, statistical analysis, and data visualisation using R. The final output of this practical is a clean and organised dataset that can be used for further analysis and research on the relationship between water quality and predatory fish assemblages along the Ross River Estuary gradient.

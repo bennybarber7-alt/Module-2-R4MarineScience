@@ -8,8 +8,7 @@ format: html
 # MB5370: Techniques in Marine Science 1: R in Marine Science Workshop 2
 
 ## Introduction
- In this workshop, I focused on tidying and reshaping data, separating and combining variables, cleaning strings and dates, joining different data frames and handling missing values. These skills helped me better understand how messy datasets can be organised into a format that is easier to analyse.
-
+This workshop improved my confidence in cleaning and reorganising complex datasets in R. I learned that tidy data, consistent formatting and careful handling of missing values are essential for combining datasets correctly and producing reliable results.
 
 ## Tidying data
 How we make our dataset tidy is by following three interrelated rules. 
@@ -390,4 +389,6 @@ site_metadata <- tibble(
 
 ```
 
+# Workshop Reflection
 
+this workshop showed me how to clean and reorganise complex datasets in R. I learned that tidy data, consistent formatting and careful handling of missing values are essential for combining datasets correctly and producing reliable results. I also learned how to use pivot_longer() and pivot_wider() to reshape data, as well as how to use separate() and unite() to split and combine columns. Finally, I learned how to use stringr and lubridate to standardize text and parse dates, respectively. Overall, this workshop improved my confidence in cleaning and reorganising complex datasets in R.

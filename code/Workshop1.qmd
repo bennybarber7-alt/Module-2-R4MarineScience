@@ -11,7 +11,6 @@ format: html
 
 This workshop built on my basic R skills by applying them to the Palmer Penguins dataset. I practised cleaning, summarising and plotting ecological data while learning how to manage missing values and check that the results made biological sense.
 
-
 # Housekeeping
 
 ## Inventory every active object currently residing in session RAM
@@ -316,6 +315,7 @@ ggsave("../Outputs/figures/SE_mass_compare_plot.png",
 ```
 
 
-
+# Workshop Reflection
+This workshop allowed me to deepen my understanding of R for ecological data analysis. I learned how to effectively clean and manipulate datasets, handle missing values, and create informative visualizations that convey both the central tendencies and variability of the data. The exercise of comparing standard deviation and standard error in the context of penguin body mass provided valuable insights into how different statistical measures can influence our interpretation of biological data. Overall, this workshop has enhanced my ability to analyze and present ecological data in a meaningful way.
 
 
