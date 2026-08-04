@@ -2,7 +2,9 @@
 title: "Module 2 - R in marine science Workshop 2"
 author: "Ben Barber"
 date: "2026-06-03"
-format: html
+format:   
+  html:
+    embed-resources: true
 ---
 
 # MB5370: Techniques in Marine Science 1: R in Marine Science Workshop 2

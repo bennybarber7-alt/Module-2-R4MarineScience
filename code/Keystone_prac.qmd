@@ -1,8 +1,10 @@
 ---
-title: "Keystone Speceis Prac"
+title: "Keystone Species Prac"
 Author: "Ben Barber"
 Date: "r format(Sys.Date(), '%B %d, %Y')"
-format: html
+format:   
+  html:
+    embed-resources: true
 ---
 
 # MB5370: Techniques in Marine Science 1: R in Marine Science Keystone Species Exercise
