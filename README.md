@@ -1,4 +1,4 @@
-# Module 2: R for Marine Science
+# MB5370 Module 2: R for Marine Science
 
 ## Overview
 R-based data wrangling, statistical analysis, and visualisation workflows for
